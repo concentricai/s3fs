@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: .Values.appName
+  name: .Values.appName
+spec:
+  selector:
+    matchLabels:
+      app: .Values.appName
+  template:
+    metadata:
+      labels:
+        app: .Values.appName
+    spec:
+      containers:
+      - name: s3fs-fuse
+        image: .Values.image
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh","-c","umount -f {{ .Values.mountPath }}"]
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+            - SYS_ADMIN
+        env:
+        - name: BUCKET_NAME
+          value: "{{ .Values.bucketName }}"
+        - name: FOLDER_PATH
+          value: "{{ .Values.mountPath }}"
+        volumeMounts:
+        - name: devfuse
+          mountPath: /dev/fuse
+        - name: s3fs
+          mountPath: {{ .Values.mountPath }}:shared
+      volumes:
+      - name: devfuse
+        hostPath:
+          path: /dev/fuse
+      - name: s3fs
+        hostPath:
+          path: "{{ .Values.hostPath }}"

@@ -1,0 +1,5 @@
+appName: s3fuse
+image: ghcr.io/concentricai/s3fs:master
+mountPath: /mnt/bucket
+bucketName: hello-world
+hostPath: /mnt/bucket
