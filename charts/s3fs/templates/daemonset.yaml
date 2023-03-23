@@ -20,7 +20,7 @@ spec:
     {{- end }}
       containers:
       - name: s3fs-fuse
-        image: .Values.image
+        image: {{.Values.image}}
         lifecycle:
           preStop:
             exec:
