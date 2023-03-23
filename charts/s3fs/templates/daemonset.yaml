@@ -3,17 +3,21 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   labels:
-    app: .Values.appName
-  name: .Values.appName
+    app: {{.Values.appName}}
+  name: {{.Values.appName}}
 spec:
   selector:
     matchLabels:
-      app: .Values.appName
+      app: {{.Values.appName}}
   template:
     metadata:
       labels:
-        app: .Values.appName
+        app: {{.Values.appName}}
     spec:
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
       containers:
       - name: s3fs-fuse
         image: .Values.image
@@ -35,7 +39,8 @@ spec:
         - name: devfuse
           mountPath: /dev/fuse
         - name: s3fs
-          mountPath: {{ .Values.mountPath }}:shared
+          mountPath: /mnt/bucket
+          mountPropagation: Bidirectional
       volumes:
       - name: devfuse
         hostPath:
